@@ -1,0 +1,3 @@
+VIRTUAL = 0
+FILE = 1
+URI = 2
