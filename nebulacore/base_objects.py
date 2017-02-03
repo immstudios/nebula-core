@@ -96,7 +96,10 @@ class BaseObject(object):
             result = "{} ID:{}".format(self.object_type, self.id)
         else:
             result = "new {}".format(self.object_type)
-        title = self.meta.get("title", "").encode("utf8", "replace")
+        if PYTHON_VERSION >= 3:
+            title = self.meta.get("title", "")
+        else:
+            title = self.meta.get("title", "").encode("utf8", "replace")
         if title:
             result += " ({})".format(title)
         return result
@@ -115,7 +118,7 @@ class BaseObject(object):
 
 
 
-class AssetMixIn():
+class AssetMixIn(object):
     object_type_id = 0
     required = ["media_type", "content_type", "id_folder", "ctime", "mtime"]
     defaults = {"media_type" : VIRTUAL, "content_type" : TEXT}
@@ -160,7 +163,7 @@ class AssetMixIn():
         return  base_url + "/{:04d}/{:d}.mp4".format(int(self.id/1000),  self.id)
 
 
-class ItemMixIn():
+class ItemMixIn(object):
     object_type_id = 1
     required = ["id_bin", "id_asset", "position", "ctime", "mtime"]
 
@@ -215,7 +218,7 @@ class ItemMixIn():
         return dur
 
 
-class BinMixIn():
+class BinMixIn(object):
     object_type_id = 2
     required = ["bin_type", "ctime", "mtime"]
     defaults = {"bin_type" : 0}
@@ -228,27 +231,27 @@ class BinMixIn():
         return dur
 
 
-class EventMixIn():
+class EventMixIn(object):
     object_type_id = 3
     required = ["start", "id_channel", "ctime", "mtime"]
 
 
-class UserMixIn():
+class UserMixIn(object):
     object_type_id = 4
     required = ["login", "password"]
+
+    def __getitem__(self, key):
+        if key == "title":
+            return self.meta["login"]
+        return super(UserMixIn, self).__getitem__(key)
 
     def set_password(self, password):
         self["password"] = get_hash(password)
 
-    def __repr__(self):
-        if self.id:
-            iid = "{} ID:{}".format(self.object_type, self.id)
-        else:
-            iid = "new {}".format(self.object_type)
-        try:
-            title = self["login"] or ""
-            if title:
-                title = " ({})".format(title)
-            return "{}{}".format(iid, title)
-        except Exception:
-            return iid
+    def has_right(self, key, val=True):
+        if self["is_admin"]:
+            return True
+        key = "can/{}".format(key)
+        if not self[key]:
+            return False
+        return self[key] == True or (type(self[key]) == list and val in self[key])
