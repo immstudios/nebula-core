@@ -134,6 +134,12 @@ class Storage(object):
         return "storage ID:{} ({})".format(self.id, self["title"])
 
     @property
+    def title(self):
+        if "title" in self.settings:
+            return self.settings["title"]
+        return "Storage {}".format(self.id)
+
+    @property
     def local_path(self):
         if self["protocol"] == "local":
             return self["path"]
