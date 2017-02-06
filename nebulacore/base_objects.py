@@ -217,6 +217,12 @@ class ItemMixIn(object):
         if mark_in  > 0: dur -= mark_in
         return dur
 
+    @property
+    def file_path(self):
+        if not self["id_asset"]:
+            return ""
+        return self.asset.file_path
+
 
 class BinMixIn(object):
     object_type_id = 2
