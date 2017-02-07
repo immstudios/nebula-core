@@ -27,6 +27,7 @@ class BaseObject(object):
             else:
                 self.new()
                 self.is_new = True
+                self["ctime"] = self["mtime"] = time.time()
         for key in self.defaults:
             if not key in self.meta:
                 self.meta[key] = self.defaults[key]
@@ -58,7 +59,7 @@ class BaseObject(object):
         if meta_type["fulltext"]:
             self.text_changed = True
         if not value:
-            del self[key]
+            del self.meta[key]
         else:
             self.meta[key] = value
         return True
@@ -117,7 +118,7 @@ class BaseObject(object):
 
 class AssetMixIn():
     object_type_id = 0
-    required = ["media_type", "content_type", "id_folder", "ctime", "mtime"]
+    required = ["media_type", "content_type", "id_folder"]
     defaults = {"media_type" : VIRTUAL, "content_type" : TEXT}
 
     def mark_in(self, new_val=False):
@@ -162,13 +163,11 @@ class AssetMixIn():
 
 class ItemMixIn():
     object_type_id = 1
-    required = ["id_bin", "id_asset", "position", "ctime", "mtime"]
+    required = ["id_bin", "id_asset", "position"]
 
     def __getitem__(self, key):
         key = key.lower().strip()
-        if key == "id_object":
-            return self.id
-        if not key in self.meta :
+        if not key in self.meta:
             if self.asset:
                 return self.asset[key]
             else:
@@ -217,7 +216,7 @@ class ItemMixIn():
 
 class BinMixIn():
     object_type_id = 2
-    required = ["bin_type", "ctime", "mtime"]
+    required = ["bin_type"]
     defaults = {"bin_type" : 0}
 
     @property
@@ -230,7 +229,7 @@ class BinMixIn():
 
 class EventMixIn():
     object_type_id = 3
-    required = ["start", "id_channel", "ctime", "mtime"]
+    required = ["start", "id_channel"]
 
 
 class UserMixIn():
