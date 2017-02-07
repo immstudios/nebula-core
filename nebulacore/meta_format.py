@@ -10,15 +10,30 @@ if PYTHON_VERSION < 3:
 else:
     str_type = str
 
+
+def shorten(instr, nlen):
+    line = instr.split("\n")[0]
+    if len(line) < 100:
+        return line
+    return line[:nlen] + "..."
+
 #
 # Formating helpers
 #
 
+def format_text(meta_type, value, **kwargs):
+    if "shorten" in kwargs:
+        return shorten(value, kwargs["shorten"])
+    return value
+
+
 def format_integer(meta_type, value, **kwargs):
     value = int(value)
+    if not value and meta_type.settings.get("hide_null", False):
+        return ""
+    if meta_type.key == "file/size":
+        return format_filesize(value)
     if kwargs.get("mode", False) == "hub":
-        if not value and meta_type.settings.get("hide_null", False):
-            return ""
         if meta_type.key == "id_folder":
             fconfig = config["folders"][value]
             return "<span class=\"label\" style=\"background-color : #{:06x}\">{}</span>".format(fconfig["color"], fconfig["title"])
@@ -72,8 +87,8 @@ def format_list(meta_type, value, **kwargs):
 
 humanizers = {
         -1       : None,
-        STRING   : None,
-        TEXT     : None,
+        STRING   : format_text,
+        TEXT     : format_text,
         INTEGER  : format_integer,
         NUMERIC  : format_numeric,
         BOOLEAN  : format_boolean,
