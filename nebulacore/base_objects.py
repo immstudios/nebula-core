@@ -7,6 +7,7 @@ from .metadata import meta_types
 __all__ = ["BaseObject", "AssetMixIn", "ItemMixIn", "BinMixIn", "EventMixIn", "UserMixIn"]
 
 class BaseObject(object):
+    required = []
     defaults = {}
 
     def __init__(self, id=False, **kwargs):
@@ -14,6 +15,8 @@ class BaseObject(object):
         self.is_new = True
         self.meta = {}
         meta = kwargs.get("meta", {})
+        if id:
+            assert type(id) == int, "{} ID must be integer".format(self.object_type)
         assert meta is not None, "Unable to load {}.  Meta must not be 'None'.".format(self.object_type)
         assert hasattr(meta, "keys"), "Incorrect meta!"
         for key in meta:
@@ -88,8 +91,6 @@ class BaseObject(object):
         key = key.lower().strip()
         if not key in self.meta:
             return
-        if hasattr(self, "ns_tags") and key in self.ns_tags:
-            return #v4 only
         del self.meta[key]
 
     def __repr__(self):
@@ -174,7 +175,7 @@ class ItemMixIn(object):
             if self.asset:
                 return self.asset[key]
             else:
-                return False
+                return meta_types[key].default
         return self.meta[key]
 
     def mark_in(self, new_val=False):
@@ -230,10 +231,13 @@ class BinMixIn(object):
 
     @property
     def duration(self):
-        dur = 0
-        for item in self.items:
-            dur += item.duration
-        return dur
+        if "duration" not in self.meta:
+            duration = 0
+            for item in self.items:
+                duration += item.duration
+            self["duration"] = duration
+        return self["duration"]
+
 
 
 class EventMixIn(object):

@@ -35,7 +35,7 @@ def format_integer(meta_type, value, **kwargs):
         return format_filesize(value)
     if kwargs.get("mode", False) == "hub":
         if meta_type.key == "id_folder":
-            fconfig = config["folders"][value]
+            fconfig = config["folders"].get(value, {"color" : 0xaaaaaa, "title" : "-"})
             return "<span class=\"label\" style=\"background-color : #{:06x}\">{}</span>".format(fconfig["color"], fconfig["title"])
     return value
 
