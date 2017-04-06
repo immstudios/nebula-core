@@ -46,6 +46,11 @@ class BaseObject(object):
     def keys(self):
         return self.meta.keys()
 
+    def get(self, key, default=False):
+        if key in self.meta:
+            return self[key]
+        return default
+
     def __getitem__(self, key):
         key = key.lower().strip()
         if key == "_duration":
@@ -61,7 +66,7 @@ class BaseObject(object):
         self.meta_changed = True
         if meta_type["fulltext"]:
             self.text_changed = True
-        if not value:
+        if not value and key in self.meta:
             del self.meta[key]
         else:
             self.meta[key] = value
@@ -72,12 +77,13 @@ class BaseObject(object):
             self[key] = data[key]
 
     def new(self):
-        logging.debug("Creating empty {}".format(self.object_type))
+        pass
 
     def load(self, id):
         pass
 
     def save(self, **kwargs):
+        logging.debug("Saving {}".format(self))
         self["ctime"] = self["ctime"] or time.time()
         if kwargs.get("set_mtime", True):
             self["mtime"] = int(time.time())
@@ -161,8 +167,10 @@ class AssetMixIn(object):
 
     @property
     def proxy_url(self):
-        base_url = config["proxy_base_url"]
-        return  base_url + "/{:04d}/{:d}.mp4".format(int(self.id/1000),  self.id)
+        base_url = config.get("proxy_url", "/{id1000:04d}/{id:d}.mp4")
+        data = self.meta
+        data["id1000"] = int(self.id/1000)
+        return base_url.format(**data)
 
 
 class ItemMixIn(object):

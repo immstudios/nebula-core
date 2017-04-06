@@ -59,7 +59,7 @@ def validate_regions(meta_type, value):
 def validate_fract(meta_type, value):
     value = value.replace(":", "/")
     split = value.split("/")
-    assert len(split) == 2 and split[0].isdigit() and split[1].isdigit()
+    assert len(split) == 2 and split[0].isdigit() and split[1].isdigit(), "Bad fract: {}".format(value)
     return value
 
 def validate_select(meta_type, value):

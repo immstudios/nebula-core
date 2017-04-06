@@ -11,7 +11,6 @@ from xml.etree import ElementTree as ET
 from nxtools import *
 from .constants import *
 
-
 if PLATFORM == "windows":
     python_cmd = "c:\\python27\python.exe"
     def ismount(path):
@@ -45,7 +44,6 @@ class Config(dict):
             if os.path.exists(settings_file):
                 try:
                     settings.update(json.load(open(settings_file)))
-                    logging.debug("Parsing {}".format(settings_file), handlers=False)
                 except Exception:
                     log_traceback(handlers=False)
 
@@ -59,18 +57,44 @@ config = Config()
 # Utilities
 #
 
-def success(ret_code):
-    return ret_code < 400
-
-def failed(ret_code):
-    return not success(ret_code)
-
 def get_hash(string):
     string = string + config.get("hash_salt", "")
     return hashlib.sha256(string).hexdigest()
 
-def xml(text):
-    return ET.XML(text)
+#
+# Nebula response object
+#
+
+class NebulaResponse(object):
+    def __init__(self, response, **kwargs):
+	self.response = response
+        self._data = {}
+        self._data.update(kwargs)
+
+    @property
+    def message(self):
+        return self.get("message", "Invalid data")
+
+    @property
+    def data(self):
+        return self.get("data", {})
+
+    @property
+    def is_success(self):
+        return self.response < 400
+
+    @property
+    def is_error(self):
+        return self.response >= 400
+
+    def get(self, key, default=False):
+        return self._data.get(key, default)
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def __len__(self):
+        return self.is_success
 
 #
 # Messaging
@@ -124,7 +148,7 @@ logging.add_handler(seismic_log)
 
 class Storage(object):
     def __init__(self, id,  **kwargs):
-        self.id = id
+        self.id = int(id)
         self.settings = kwargs
 
     def __getitem__(self, key):
