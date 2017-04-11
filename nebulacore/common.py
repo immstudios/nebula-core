@@ -165,6 +165,11 @@ class Storage(object):
 
     @property
     def local_path(self):
+        if str(self.id) in config.get("alt_storages", []):
+            alt_storage_config = config["alt_storages"][str(self.id)]
+            if config.get("id_service", -1) in alt_storage_config.get("services", []):
+                return alt_storage_config["path"]
+
         if self["protocol"] == "local":
             return self["path"]
         elif PLATFORM == "unix":
