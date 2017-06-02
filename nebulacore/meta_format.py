@@ -49,13 +49,13 @@ def format_boolean(meta_type, value, **kwargs):
     if kwargs.get("mode", False) == "hub":
         if meta_type.key == "promoted":
             return [
-                    "<i class=\"mdi mdi-star-outline\">",
-                    "<i class=\"mdi mdi-star\">"
+                    "<i class=\"mdi mdi-star-outline\"></i>",
+                    "<i class=\"mdi mdi-star\"></i>"
                 ][value]
         else:
             return [
-                    "<i class=\"mdi mdi-checkbox-blank-outline\">",
-                    "<i class=\"mdi mdi-checkbox-marked-outline\">"
+                    "<i class=\"mdi mdi-checkbox-blank-outline\"></i>",
+                    "<i class=\"mdi mdi-checkbox-marked-outline\"></i>"
                 ][value]
     return ["no", "yes"][bool(value)]
 
