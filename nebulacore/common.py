@@ -59,6 +59,7 @@ config = Config()
 
 def get_hash(string):
     string = string + config.get("hash_salt", "")
+    string = encode_if_py3(string)
     return hashlib.sha256(string).hexdigest()
 
 #
@@ -67,7 +68,7 @@ def get_hash(string):
 
 class NebulaResponse(object):
     def __init__(self, response, **kwargs):
-	self.response = response
+        self.response = response
         self._data = {}
         self._data.update(kwargs)
 
