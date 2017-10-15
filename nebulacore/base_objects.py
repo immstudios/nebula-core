@@ -86,7 +86,7 @@ class BaseObject(object):
         logging.debug("Saving {}".format(self))
         self["ctime"] = self["ctime"] or time.time()
         if kwargs.get("set_mtime", True):
-            self["mtime"] = int(time.time())
+            self["mtime"] = time.time()
         for key in self.required:
             assert key in self.meta, "Unable to save {}. {} is required".format(self, key)
 
