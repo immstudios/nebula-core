@@ -67,14 +67,14 @@ def get_hash(string):
 #
 
 class NebulaResponse(object):
-    def __init__(self, response, **kwargs):
+    def __init__(self, response, message="( no message )", **kwargs):
         self.response = response
-        self._data = {}
+        self._data = {"message" : message}
         self._data.update(kwargs)
 
     @property
     def message(self):
-        return self.get("message", "Invalid data")
+        return self["message"]
 
     @property
     def data(self):
