@@ -9,7 +9,11 @@ import socket
 from xml.etree import ElementTree as ET
 
 from nxtools import *
+
 from .constants import *
+
+logging.show_time = True
+
 
 if PLATFORM == "windows":
     python_cmd = "c:\\python27\python.exe"
