@@ -33,6 +33,7 @@ class Config(dict):
         self["site_name"] = "Unnamed"
         self["user"] = "Nebula"              # Service identifier. Should be overwritten by service/script.
         self["host"] = socket.gethostname()  # Machine hostname
+        self["meta_types"] = {}
 
         if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
             local_settings_path = sys.argv[1]
@@ -181,7 +182,8 @@ class Storage(object):
             return os.path.join("/mnt/{}_{:02d}".format(config["site_name"], self.id))
         #elif PLATFORM == "windows":
             #TODO
-        logging.warning("Unsuported {} protocol '{}' on this platform.".format(self, self["protocol"]))
+            #logging.warning("Unsuported {} protocol '{}' on this platform.".format(self, self["protocol"]))
+        return ""
 
     def __len__(self):
         if self["protocol"] == "local" and os.path.isdir(self["path"]):
