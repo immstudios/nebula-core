@@ -41,6 +41,11 @@ def format_integer(meta_type, value, **kwargs):
 
 
 def format_numeric(meta_type, value, **kwargs):
+    if type(value) not in [int, float]:
+        try:
+            value = float(value)
+        except ValueError:
+            value = 0
     return "{:.03f}".format(value)
 
 
