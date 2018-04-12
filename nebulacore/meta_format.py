@@ -17,6 +17,52 @@ def shorten(instr, nlen):
         return line
     return line[:nlen] + "..."
 
+
+#
+# CS Caching
+#
+
+FMH_DATA = {} # id_folder-->key
+def folder_metaset_helper(id_folder, key):
+    if id_folder not in FMH_DATA:
+        d = {}
+        for fkey, settings in config["folders"].get(id_folder, {}).get("meta_set", []):
+            d[fkey] = settings
+        FMH_DATA[id_folder] = d
+    return FMH_DATA.get(id_folder, {}).get(key, {})
+
+
+CSH_DATA = {} # key --> id_folder
+def csdata_helper(meta_type, id_folder):
+    key = meta_type.key
+    if key not in CSH_DATA:
+        CSH_DATA[key] = {
+                0 : config["cs"].get(meta_type.settings["cs"], [])
+            }
+    if id_folder not in CSH_DATA[key]:
+        folder_settings = folder_metaset_helper(id_folder, meta_type.key)
+        folder_cs = folder_settings.get("cs", False)
+        CSH_DATA[key][id_folder] = config["cs"].get(folder_cs, [])
+    return CSH_DATA[key].get(id_folder, None) or CSH_DATA[key][0]
+
+
+CSA_DATA = {}
+def csa_helper(meta_type, id_folder, value, lang):
+    key = meta_type.key
+    if not key in CSA_DATA:
+        CSA_DATA[key] = {}
+    if not id_folder in CSA_DATA[key]:
+        CSA_DATA[key][id_folder] = {}
+    if not value in CSA_DATA[key][id_folder]:
+        for csval, settings in csdata_helper(meta_type, id_folder):
+            if csval == value:
+                    CSA_DATA[key][id_folder][value] = settings.get("aliases", {})
+                    break
+        else:
+            CSA_DATA[key][id_folder][value] = {}
+    return CSA_DATA[key][id_folder][value].get(lang, value)
+
+
 #
 # Formating helpers
 #
@@ -83,7 +129,20 @@ def format_fract(meta_type, value, **kwargs):
 
 
 def format_select(meta_type, value, **kwargs):
-    return value # TODO
+    lang = kwargs.get("lang", "en")
+    full = kwargs.get("full", False)
+    id_folder = kwargs["parent"].meta.get("id_folder", 0)
+    if full:
+        result = []
+        for csval, settings in csdata_helper(meta_type, id_folder):
+            result.append({
+                    "value" : csval,
+                    "alias" : settings.get("aliases", {}).get(lang) or csval,
+                    "selected" : value == csval
+                })
+        return sorted(result, key=lambda x: str(x["value"])) if full else "---"
+    else:
+        return csa_helper(meta_type, id_folder, value, lang)
 
 
 def format_list(meta_type, value, **kwargs):
