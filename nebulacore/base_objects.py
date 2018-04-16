@@ -116,6 +116,7 @@ class BaseObject(object):
         return not self.is_new
 
     def show(self, key, **kwargs):
+        kwargs["parent"] = self
         return meta_types[key.lstrip("_")].show(self[key], **kwargs)
 
     def show_meta(self):
