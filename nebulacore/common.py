@@ -33,6 +33,13 @@ class Config(dict):
         self["site_name"] = "Unnamed"
         self["user"] = "Nebula"              # Service identifier. Should be overwritten by service/script.
         self["host"] = socket.gethostname()  # Machine hostname
+        self["storages"] = {}
+        self["rights"] = {}
+        self["folders"] = {}
+        self["playout_channels"] = {}
+        self["ingest_channels"] = {}
+        self["cs"] = {}
+        self["views"] = {}
         self["meta_types"] = {}
 
         if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):

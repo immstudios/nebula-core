@@ -181,7 +181,7 @@ class ItemMixIn(object):
     def __getitem__(self, key):
         key = key.lower().strip()
         if not key in self.meta:
-            if self.asset:
+            if key not in ["id_asset"] and self.asset:
                 return self.asset[key]
             else:
                 return meta_types[key].default
