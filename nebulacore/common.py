@@ -72,10 +72,20 @@ def get_hash(string):
 #
 
 class NebulaResponse(object):
-    def __init__(self, response, message="( no message )", **kwargs):
-        self.response = response
-        self._data = {"message" : message}
-        self._data.update(kwargs)
+    def __init__(self, response=200, message="(no message)", **kwargs):
+        self.dict = {
+                "response" : response,
+                "message" : message
+            }
+        self.dict.update(kwargs)
+
+    @property
+    def json(self):
+        return json.dumps(self.dict)
+
+    @property
+    def response(self):
+        return self["response"]
 
     @property
     def message(self):
@@ -94,10 +104,10 @@ class NebulaResponse(object):
         return self.response >= 400
 
     def get(self, key, default=False):
-        return self._data.get(key, default)
+        return self.dict.get(key, default)
 
     def __getitem__(self, key):
-        return self._data[key]
+        return self.dict[key]
 
     def __len__(self):
         return self.is_success
@@ -156,6 +166,9 @@ class Storage(object):
     def __init__(self, id,  **kwargs):
         self.id = int(id)
         self.settings = kwargs
+        self.is_dead = False
+        self.last_check = 0
+        self.check_interval = 2
 
     def __getitem__(self, key):
         return self.settings[key]
