@@ -213,9 +213,9 @@ class ItemMixIn(object):
     def duration(self):
         """Final duration of the item"""
         if self["id_asset"]:
-            dur = self.asset["duration"]
+            dur = self.asset["duration"] or 0
         elif self["duration"]:
-            dur = self["duration"]
+            dur = self["duration"] or 0
         else:
             return self.mark_out() - self.mark_in()
         if not dur:
