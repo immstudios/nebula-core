@@ -82,7 +82,27 @@ def format_integer(meta_type, value, **kwargs):
     if kwargs.get("mode", False) == "hub":
         if meta_type.key == "id_folder":
             fconfig = config["folders"].get(value, {"color" : 0xaaaaaa, "title" : "-"})
-            return "<span class=\"label\" style=\"background-color : #{:06x}\">{}</span>".format(fconfig["color"], fconfig["title"])
+            return "<span class='label' style='background-color : #{:06x}'>{}</span>".format(fconfig["color"], fconfig["title"])
+        if meta_type.key == "qc/state":
+            c, i = {
+                    0 : ["#a0a0a0", "flag-outline"],
+                    1 : ["#cc0000", "flag-outline"],
+                    2 : ["#00cc00", "flag-outline"],
+                    3 : ["#cc0000", "flag"],
+                    4 : ["#00cc00", "flag"],
+                }[value]
+            return "<span class='label' style='background-color : {}'><i class='mdi mdi-{}'></i></span>".format(c,i)
+    if meta_type.key == "status":
+        return {
+                OFFLINE : "OFFLINE",
+                ONLINE : "ONLINE",
+                CREATING : "CREATING",
+                TRASHED : "TRASHED",
+                ARCHIVED : "ARCHIVED",
+                RESET : "RESET",
+                CORRUPTED : "CORRUPTED",
+                REMOTE : "REMOTE"
+            }
     return value
 
 

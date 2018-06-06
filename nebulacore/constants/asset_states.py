@@ -4,3 +4,6 @@ CREATING = 2           # File exists, but was changed recently. It is no safe (o
 TRASHED  = 3           # File has been moved to trash location.
 ARCHIVED = 4           # File has been moved to archive location.
 RESET    = 5           # Reset metadata action has been invoked. Meta service will update/refresh auto-generated asset information.
+CORRUPTED = 6
+REMOTE = 7
+

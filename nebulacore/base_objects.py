@@ -104,10 +104,13 @@ class BaseObject(object):
             result = "{} ID:{}".format(self.object_type, self.id)
         else:
             result = "new {}".format(self.object_type)
-        if PYTHON_VERSION >= 3:
-            title = self.meta.get("title", "")
+        if self.object_type == "item" and not hasattr(self, "_asset"):
+            title = ""
         else:
-            title = self.meta.get("title", "").encode("utf8", "replace")
+            if PYTHON_VERSION >= 3:
+                title = self["title"]
+            else:
+                title = self.meta.get("title", "").encode("utf8", "replace")
         if title:
             result += " ({})".format(title)
         return result
