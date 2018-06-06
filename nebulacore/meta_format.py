@@ -102,7 +102,7 @@ def format_integer(meta_type, value, **kwargs):
                 RESET : "RESET",
                 CORRUPTED : "CORRUPTED",
                 REMOTE : "REMOTE"
-            }
+            }[value]
     return value
 
 

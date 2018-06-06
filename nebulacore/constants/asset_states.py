@@ -6,4 +6,5 @@ ARCHIVED = 4           # File has been moved to archive location.
 RESET    = 5           # Reset metadata action has been invoked. Meta service will update/refresh auto-generated asset information.
 CORRUPTED = 6
 REMOTE = 7
+UNKNOWN = 8
 
