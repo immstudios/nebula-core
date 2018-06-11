@@ -77,8 +77,8 @@ def format_integer(meta_type, value, **kwargs):
     value = int(value)
     if not value and meta_type.settings.get("hide_null", False):
         return ""
-    if meta_type.key == "file/size":
-        return format_filesize(value)
+
+    #TODO: DEPRECATED??
     if kwargs.get("mode", False) == "hub":
         if meta_type.key == "id_folder":
             fconfig = config["folders"].get(value, {"color" : 0xaaaaaa, "title" : "-"})
@@ -92,6 +92,10 @@ def format_integer(meta_type, value, **kwargs):
                     4 : ["#00cc00", "flag"],
                 }[value]
             return "<span class='label' style='background-color : {}'><i class='mdi mdi-{}'></i></span>".format(c,i)
+
+    if meta_type.key == "file/size":
+        return format_filesize(value)
+
     if meta_type.key == "status":
         return {
                 OFFLINE : "OFFLINE",
@@ -103,6 +107,12 @@ def format_integer(meta_type, value, **kwargs):
                 CORRUPTED : "CORRUPTED",
                 REMOTE : "REMOTE"
             }[value]
+    if meta_type.key == "content_type":
+        return get_content_type_name(value)
+
+    if meta_type.key == "media_type":
+        return get_media_type_name(value)
+
     return value
 
 
@@ -117,6 +127,7 @@ def format_numeric(meta_type, value, **kwargs):
 
 def format_boolean(meta_type, value, **kwargs):
     value = int(value)
+    #TODO: Deprecated?
     if kwargs.get("mode", False) == "hub":
         if meta_type.key == "promoted":
             return [
@@ -133,7 +144,7 @@ def format_boolean(meta_type, value, **kwargs):
 
 def format_datetime(meta_type, value, **kwargs):
     time_format = meta_type.settings.get("format", False) or kwargs.get("format", "%Y-%m-%d %H:%M")
-    return time.strftime(time_format, time.localtime(value))
+    return format_time(value, time_format)
 
 
 def format_timecode(meta_type, value, **kwargs):
