@@ -1,4 +1,4 @@
-from .asset_states import *
+from .object_states import *
 from .channel_types import *
 from .content_types import *
 from .file_types import *

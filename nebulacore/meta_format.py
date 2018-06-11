@@ -97,21 +97,13 @@ def format_integer(meta_type, value, **kwargs):
         return format_filesize(value)
 
     if meta_type.key == "status":
-        return {
-                OFFLINE : "OFFLINE",
-                ONLINE : "ONLINE",
-                CREATING : "CREATING",
-                TRASHED : "TRASHED",
-                ARCHIVED : "ARCHIVED",
-                RESET : "RESET",
-                CORRUPTED : "CORRUPTED",
-                REMOTE : "REMOTE"
-            }[value]
+        return get_object_state_name(value).upper()
+
     if meta_type.key == "content_type":
-        return get_content_type_name(value)
+        return get_content_type_name(value).upper()
 
     if meta_type.key == "media_type":
-        return get_media_type_name(value)
+        return get_media_type_name(value).upper()
 
     return value
 
