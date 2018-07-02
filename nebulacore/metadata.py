@@ -7,7 +7,7 @@ __all__ = ["meta_types", "MetaType"]
 
 
 default_meta_type = {
-        "ns"       : "m",
+        "ns"       : "",
         "class"    : -1,
         "fulltext" : 0,
         "editable" : 0,

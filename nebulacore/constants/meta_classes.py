@@ -9,3 +9,4 @@ REGIONS      = 7       #TODO: TBD. stored as list of something
 FRACTION     = 8       # 16/9 etc...
 SELECT       = 9       # Select one value from list. stored as string or int value
 LIST         = 10      # Select 0 or more values from list, stored as array
+COLOR        = 11      # stored as integer
