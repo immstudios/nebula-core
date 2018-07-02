@@ -80,7 +80,7 @@ def get_hash(string):
 #
 
 class NebulaResponse(object):
-    def __init__(self, response=200, message="(no message)", **kwargs):
+    def __init__(self, response=200, message=None, **kwargs):
         self.dict = {
                 "response" : response,
                 "message" : message
@@ -97,7 +97,7 @@ class NebulaResponse(object):
 
     @property
     def message(self):
-        return self["message"]
+        return self["message"] or "(no message)"
 
     @property
     def data(self):
