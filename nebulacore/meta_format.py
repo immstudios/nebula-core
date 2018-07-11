@@ -171,6 +171,9 @@ def format_select(meta_type, value, **kwargs):
 def format_list(meta_type, value, **kwargs):
     return value # TODO
 
+def format_color(meta_type, value, **kwargs):
+    return "#{0:06X}".format(value)
+
 
 humanizers = {
         -1       : None,
@@ -184,5 +187,6 @@ humanizers = {
         REGIONS  : format_regions,
         FRACTION : format_fract,
         SELECT   : format_select,
-        LIST     : format_list
+        LIST     : format_list,
+        COLOR    : format_color
     }

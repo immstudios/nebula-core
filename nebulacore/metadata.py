@@ -27,7 +27,8 @@ defaults = {
         REGIONS  : [],
         FRACTION : "1/1",
         SELECT   : "",
-        LIST     : []
+        LIST     : [],
+        COLOR    : 0x006fd5 # nebulabroadcast.com primary
     }
 
 
