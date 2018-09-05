@@ -71,8 +71,7 @@ def validate_list(meta_type, value):
     return value
 
 def validate_color(meta_type, value):
-    assert type(value) == int
-    return value
+    return validate_integer(meta_type, value)
 
 
 validators = {

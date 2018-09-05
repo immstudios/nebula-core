@@ -9,6 +9,7 @@ REMOTE    = 7
 UNKNOWN   = 8
 AIRED     = 9          # Auxiliary value.
 ONAIR     = 10
+RETRIEVING  = 11
 
 def get_object_state_id(name):
     return {
@@ -22,7 +23,8 @@ def get_object_state_id(name):
             "remote" : REMOTE,
             "unknown" : UNKNOWN,
             "aired" : AIRED,
-            "onair" : ONAIR
+            "onair" : ONAIR,
+            "retrieving" : RETRIEVING
 	}[name]
 
 def get_object_state_name(id):
@@ -37,5 +39,6 @@ def get_object_state_name(id):
             REMOTE : "remote",
             UNKNOWN : "unknown",
             AIRED : "aired",
-            ONAIR : "onair"
+            ONAIR : "onair",
+            RETRIEVING : "retrieving"
 	}[id]
