@@ -8,6 +8,9 @@ if PYTHON_VERSION < 3:
 else:
     str_type = str
 
+class NebulaInvalidValueError(Exception):
+    pass
+
 #
 #
 #
@@ -28,6 +31,8 @@ def validate_text(meta_type, value):
     return to_unicode(value).strip()
 
 def validate_integer(meta_type, value):
+    if not value:
+        return 0
     try:
         value = int(value)
     except ValueError:
