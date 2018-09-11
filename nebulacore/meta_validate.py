@@ -76,7 +76,17 @@ def validate_list(meta_type, value):
     return value
 
 def validate_color(meta_type, value):
-    return validate_integer(meta_type, value)
+    if not value:
+        return 0
+    base=10
+    if type(value) == str and value.startswith("#"):
+        base = 16
+        value = value.lstrip("#")
+    try:
+        value = int(value, base)
+    except ValueError:
+        raise NebulaInvalidValueError
+    return value
 
 
 validators = {
