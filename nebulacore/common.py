@@ -42,6 +42,7 @@ class Config(dict):
         self["views"] = {}
         self["meta_types"] = {}
         self["actions"] = {}
+        self["services"] = {}
 
         if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
             local_settings_path = sys.argv[1]
