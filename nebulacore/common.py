@@ -98,7 +98,7 @@ class NebulaResponse(object):
 
     @property
     def message(self):
-        return self["message"] or "(no message)"
+        return self["message"] or DEFAULT_RESPONSE_MESSAGES.get(self.response, "(no message)")
 
     @property
     def data(self):

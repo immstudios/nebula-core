@@ -11,6 +11,7 @@ ERROR_NOT_FOUND           = 404
 ERROR_LOCKED              = 423
 
 ERROR_INTERNAL            = 500
+ERROR_BAD_GATEWAY         = 502
 ERROR_NOT_IMPLEMENTED     = 503
 ERROR_TIMEOUT             = 504
 ERROR_SERVICE_UNAVAILABLE = 503
@@ -24,11 +25,12 @@ DEFAULT_RESPONSE_MESSAGES = {
 
         400 : "Bad request",
         401 : "Unauthorised",
-        403 : "Acces denied"
+        403 : "Acces denied",
         404 : "Not found",
         423 : "Locked",
 
         500 : "Internal server error",
+        502 : "Bad gateway",
         503 : "Not implemented",
         504 : "Timeout",
         503 : "Service unavailable"
