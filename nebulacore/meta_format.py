@@ -105,6 +105,9 @@ def format_integer(meta_type, value, **kwargs):
     if meta_type.key == "media_type":
         return get_media_type_name(value).upper()
 
+    if meta_type.key == "id_storage":
+        return storages[value].__repr__().lstrip("storage ")
+
     return value
 
 
