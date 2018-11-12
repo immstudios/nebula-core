@@ -172,6 +172,11 @@ class AssetMixIn(object):
         return dur
 
     @property
+    def fps(self):
+        n, d = [int(k) for k in self.meta.get("fps", "25/1").split("/")]
+        return n/d
+
+    @property
     def proxy_url(self):
         base_url = config.get("proxy_url", "/proxy/{id1000:04d}/{id}.mp4")
         data = copy.copy(self.meta)
@@ -230,6 +235,10 @@ class ItemMixIn(object):
         if mark_out > 0: dur -= dur - mark_out
         if mark_in  > 0: dur -= mark_in
         return dur
+
+    @property
+    def fps(self):
+        return self.asset.fps
 
     @property
     def file_path(self):
