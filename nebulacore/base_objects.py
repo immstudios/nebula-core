@@ -1,4 +1,5 @@
 import pprint
+import copy
 
 from .common import *
 from .constants import *
@@ -64,7 +65,7 @@ class BaseObject(object):
         if value == self[key]:
             return True # No change
         self.meta_changed = True
-        if meta_type["fulltext"]:
+        if meta_type["fulltext"] or key == "subclips":
             self.text_changed = True
         if not value and key in self.meta:
             del self.meta[key]
@@ -172,8 +173,8 @@ class AssetMixIn(object):
 
     @property
     def proxy_url(self):
-        base_url = config.get("proxy_url", "/{id1000}/{id}.mp4")
-        data = self.meta
+        base_url = config.get("proxy_url", "/proxy/{id1000:04d}/{id}.mp4")
+        data = copy.copy(self.meta)
         data["id1000"] = int(self.id/1000)
         return base_url.format(**data)
 
