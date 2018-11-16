@@ -126,6 +126,7 @@ def format_fract(meta_type, value, **kwargs):
 
 
 def format_select(meta_type, value, **kwargs):
+    value = str(value)
     lang = kwargs.get("lang", "en")
     full = kwargs.get("full", False)
     try:
@@ -146,8 +147,11 @@ def format_select(meta_type, value, **kwargs):
                     "selected" : value == csval
                 })
         result.sort(key=lambda x: str(x["value"]))
-        if (not has_zero) and (not has_selected):
-            result.insert(0, {"value" : "", "alias" : "", "selected": True})
+        if not has_selected:
+            if has_zero:
+                result[0]["selected"] = True
+            else:
+                result.insert(0, {"value" : "", "alias" : "", "selected": True})
         return result
     else:
         return csa_helper(meta_type, id_folder, value, lang)
