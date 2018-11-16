@@ -110,7 +110,7 @@ def format_boolean(meta_type, value, **kwargs):
 
 def format_datetime(meta_type, value, **kwargs):
     time_format = meta_type.settings.get("format", False) or kwargs.get("format", "%Y-%m-%d %H:%M")
-    return format_time(value, time_format)
+    return format_time(value, time_format, never_placeholder=kwargs.get("never_placeholder", "never"))
 
 
 def format_timecode(meta_type, value, **kwargs):
@@ -134,13 +134,21 @@ def format_select(meta_type, value, **kwargs):
         id_folder = 0
     if full:
         result = []
+        has_zero = has_selected = False
         for csval, settings in csdata_helper(meta_type, id_folder):
+            if csval == "0":
+                has_zero = True
+            if value == csval:
+                has_selected = True
             result.append({
                     "value" : csval,
                     "alias" : settings.get("aliases", {}).get(lang) or csval,
                     "selected" : value == csval
                 })
-        return sorted(result, key=lambda x: str(x["value"])) if full else "---"
+        result.sort(key=lambda x: str(x["value"]))
+        if (not has_zero) and (not has_selected):
+            result.insert(0, {"value" : "", "alias" : "", "selected": True})
+        return result
     else:
         return csa_helper(meta_type, id_folder, value, lang)
 
