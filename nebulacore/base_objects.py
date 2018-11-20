@@ -178,6 +178,8 @@ class AssetMixIn(object):
 
     @property
     def proxy_url(self):
+        if not self.id:
+            return ""
         base_url = config.get("proxy_url", "/proxy/{id1000:04d}/{id}.mp4")
         data = copy.copy(self.meta)
         data["id1000"] = int(self.id/1000)
