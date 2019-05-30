@@ -76,8 +76,35 @@ def csa_helper(meta_type, id_folder, value, lang):
                 CSA_DATA[key][id_folder][value] = settings.get("aliases", {})
                 break
         else:
-            CSA_DATA[key][id_folder][value] = {}
-    return CSA_DATA[key][id_folder][value].get(lang, value)
+            for csval, settings in csdata_helper(meta_type, 0):
+                if csval == value:
+                    CSA_DATA[key][id_folder][value] = settings.get("aliases", {})
+                    break
+            else:
+                CSA_DATA[key][id_folder][value] = {}
+    return CSA_DATA[key][id_folder][value].get(lang) or CSA_DATA[key][id_folder][value].get("en", value)# "!{}".format(CSA_DATA[key][id_folder][value]) )
+
+
+CSD_DATA = {}
+def csd_helper(meta_type, id_folder, value, lang):
+    key = meta_type.key
+    if not key in CSD_DATA:
+        CSD_DATA[key] = {}
+    if not id_folder in CSD_DATA[key]:
+        CSD_DATA[key][id_folder] = {}
+    if not value in CSD_DATA[key][id_folder]:
+        for csval, settings in csdata_helper(meta_type, id_folder):
+            if csval == value:
+                CSD_DATA[key][id_folder][value] = settings.get("description", {})
+                break
+        else:
+            for csval, settings in csdata_helper(meta_type, 0):
+                if csval == value:
+                    CSD_DATA[key][id_folder][value] = settings.get("description", {})
+                    break
+            else:
+                CSD_DATA[key][id_folder][value] = {}
+    return CSD_DATA[key][id_folder][value].get(lang) or CSD_DATA[key][id_folder][value].get("en", value)
 
 #
 # Formating helpers
@@ -145,8 +172,9 @@ def format_fract(meta_type, value, **kwargs):
 
 def format_select(meta_type, value, **kwargs):
     value = str(value)
-    lang = kwargs.get("lang", "en")
+    lang = kwargs.get("language", config.get("language", "en"))
     full = kwargs.get("full", False)
+    result = kwargs.get("result", "alias")
     try:
         id_folder = kwargs["parent"].meta["id_folder"]
     except KeyError:
@@ -159,9 +187,12 @@ def format_select(meta_type, value, **kwargs):
                 has_zero = True
             if value == csval:
                 has_selected = True
+            aliases = settings.get("aliases", {"en" : csval})
+            description = settings.get("description", {"en" : ""})
             result.append({
                     "value" : csval,
-                    "alias" : settings.get("aliases", {}).get(lang) or csval,
+                    "alias" : aliases.get(lang, aliases["en"]),
+                    "description" : description.get(lang, description["en"]),
                     "selected" : value == csval
                 })
         result.sort(key=lambda x: str(x["value"]))
@@ -171,12 +202,50 @@ def format_select(meta_type, value, **kwargs):
             else:
                 result.insert(0, {"value" : "", "alias" : "", "selected": True})
         return result
-    else:
+
+    if result == "alias":
         return csa_helper(meta_type, id_folder, value, lang)
+    elif result == "description":
+        return csd_helper(meta_type, id_folder, value, lang)
+    return ""
+
 
 
 def format_list(meta_type, value, **kwargs):
-    return ", ".join(value)
+    if type(value) == str:
+        value = [value]
+    elif type(value) != list:
+        logging.warning("Unknown value {} for key {}".format(value, meta_type))
+        value = []
+    value = [str(v) for v in value]
+
+    lang = kwargs.get("language", config.get("language", "en"))
+    full = kwargs.get("full", False)
+    result = kwargs.get("result", "alias")
+    try:
+        id_folder = kwargs["parent"].meta["id_folder"]
+    except KeyError:
+        id_folder = 0
+    if full:
+        result = []
+        has_zero = has_selected = False
+        for csval, settings in csdata_helper(meta_type, id_folder):
+            aliases = settings.get("aliases", {"en" : csval})
+            description = settings.get("description", {"en" : ""})
+            result.append({
+                    "value" : csval,
+                    "alias" : aliases.get(lang, aliases["en"]),
+                    "description" : description.get(lang, description["en"]),
+                    "selected" : csval in value
+                })
+        result.sort(key=lambda x: str(x["value"]))
+        return result
+
+    if result == "alias":
+        return csa_helper(meta_type, id_folder, value, lang)
+    elif result == "description":
+        return csd_helper(meta_type, id_folder, value, lang)
+    return ""
 
 
 def format_color(meta_type, value, **kwargs):
