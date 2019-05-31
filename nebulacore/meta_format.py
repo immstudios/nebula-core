@@ -188,19 +188,21 @@ def format_select(meta_type, value, **kwargs):
             if value == csval:
                 has_selected = True
             aliases = settings.get("aliases", {"en" : csval})
-            description = settings.get("description", {"en" : ""})
+            description = {"en" : ""}
+            description.update(settings.get("description", {}))
             result.append({
                     "value" : csval,
                     "alias" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
-                    "selected" : value == csval
+                    "selected" : value == csval,
+                    "role" : settings.get("role", "option")
                 })
         result.sort(key=lambda x: str(x["value"]))
         if not has_selected:
             if has_zero:
                 result[0]["selected"] = True
             else:
-                result.insert(0, {"value" : "", "alias" : "", "selected": True})
+                result.insert(0, {"value" : "", "alias" : "", "selected": True, "role" : "option"})
         return result
 
     if result == "alias":
@@ -231,12 +233,14 @@ def format_list(meta_type, value, **kwargs):
         has_zero = has_selected = False
         for csval, settings in csdata_helper(meta_type, id_folder):
             aliases = settings.get("aliases", {"en" : csval})
-            description = settings.get("description", {"en" : ""})
+            description = {"en" : ""}
+            description.update(settings.get("description", {}))
             result.append({
                     "value" : csval,
                     "alias" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
-                    "selected" : csval in value
+                    "selected" : csval in value,
+                    "role" : settings.get("role", "option")
                 })
         result.sort(key=lambda x: str(x["value"]))
         return result
