@@ -187,7 +187,8 @@ def format_select(meta_type, value, **kwargs):
                 has_zero = True
             if value == csval:
                 has_selected = True
-            aliases = settings.get("aliases", {"en" : csval})
+            aliases = {"en" : csval}
+            aliases.update(settings.get("aliases", {}))
             description = {"en" : ""}
             description.update(settings.get("description", {}))
             result.append({
@@ -232,7 +233,8 @@ def format_list(meta_type, value, **kwargs):
         result = []
         has_zero = has_selected = False
         for csval, settings in csdata_helper(meta_type, id_folder):
-            aliases = settings.get("aliases", {"en" : csval})
+            aliases = {"en" : csval}
+            aliases.update(settings.get("aliases", {}))
             description = {"en" : ""}
             description.update(settings.get("description", {}))
             result.append({
