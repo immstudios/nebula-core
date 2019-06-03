@@ -24,7 +24,7 @@ def filter_match(f, r):
     if type(f) == list:
         res = False
         for fl in f:
-            if re.match(f, r):
+            if re.match(fl, r):
                 return True
         return False
     else:
@@ -248,9 +248,10 @@ def format_list(meta_type, value, **kwargs):
         return result
 
     if result == "alias":
-        return csa_helper(meta_type, id_folder, value, lang)
+        return ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
     elif result == "description":
-        return csd_helper(meta_type, id_folder, value, lang)
+        if len(value):
+            return csd_helper(meta_type, id_folder, value[1], lang)
     return ""
 
 
