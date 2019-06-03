@@ -251,7 +251,7 @@ def format_list(meta_type, value, **kwargs):
         return ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
     elif result == "description":
         if len(value):
-            return csd_helper(meta_type, id_folder, value[1], lang)
+            return csd_helper(meta_type, id_folder, value[0], lang)
     return ""
 
 
