@@ -39,7 +39,7 @@ def folder_metaset_helper(id_folder, key):
     if id_folder not in FMH_DATA:
         d = {}
         for fkey, settings in config["folders"].get(id_folder, {}).get("meta_set", []):
-            d[fkey] = settings
+            d[fkey] = settings or {}
         FMH_DATA[id_folder] = d
     return FMH_DATA.get(id_folder, {}).get(key, {})
 
@@ -73,11 +73,13 @@ def csa_helper(meta_type, id_folder, value, lang):
     if not value in CSA_DATA[key][id_folder]:
         for csval, settings in csdata_helper(meta_type, id_folder):
             if csval == value:
+                settings = settings or {}
                 CSA_DATA[key][id_folder][value] = settings.get("aliases", {})
                 break
         else:
             for csval, settings in csdata_helper(meta_type, 0):
                 if csval == value:
+                    settings = settings or {}
                     CSA_DATA[key][id_folder][value] = settings.get("aliases", {})
                     break
             else:
@@ -183,6 +185,7 @@ def format_select(meta_type, value, **kwargs):
         result = []
         has_zero = has_selected = False
         for csval, settings in csdata_helper(meta_type, id_folder):
+            settings = settings or {}
             if csval == "0":
                 has_zero = True
             if value == csval:
@@ -231,8 +234,8 @@ def format_list(meta_type, value, **kwargs):
         id_folder = 0
     if full:
         result = []
-        has_zero = has_selected = False
         for csval, settings in csdata_helper(meta_type, id_folder):
+            settings = settings or {}
             aliases = {"en" : csval}
             aliases.update(settings.get("aliases", {}))
             description = {"en" : ""}
