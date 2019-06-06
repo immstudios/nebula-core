@@ -30,6 +30,21 @@ def filter_match(f, r):
     else:
         return re.match(f, r)
 
+def tree_indent(data):
+    for i, row in enumerate(data):
+        value = row["value"]
+        depth = len(value.split("."))
+        parentindex = None
+        for j in range(i - 1, -1, -1):
+            if value.startswith(data[j]["value"] + "."):
+                parentindex = j
+                break
+        if parentindex is None:
+            data[i]["indent"] = 0
+            continue
+        data[i]["indent"] = data[parentindex]["indent"] + 1
+
+
 #
 # CS Caching
 #
@@ -207,6 +222,7 @@ def format_select(meta_type, value, **kwargs):
                 result[0]["selected"] = True
             else:
                 result.insert(0, {"value" : "", "alias" : "", "selected": True, "role" : "option"})
+        tree_indent(result)
         return result
 
     if result == "alias":
@@ -248,6 +264,7 @@ def format_list(meta_type, value, **kwargs):
                     "role" : settings.get("role", "option")
                 })
         result.sort(key=lambda x: str(x["value"]))
+        tree_indent(result)
         return result
 
     if result == "alias":
