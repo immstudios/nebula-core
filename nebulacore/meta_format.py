@@ -31,6 +31,7 @@ def filter_match(f, r):
         return re.match(f, r)
 
 def tree_indent(data):
+    has_children = False
     for i, row in enumerate(data):
         value = row["value"]
         depth = len(value.split("."))
@@ -38,12 +39,22 @@ def tree_indent(data):
         for j in range(i - 1, -1, -1):
             if value.startswith(data[j]["value"] + "."):
                 parentindex = j
+                data[j]["has_children"] = True
                 break
         if parentindex is None:
             data[i]["indent"] = 0
             continue
+        has_children = True
         data[i]["indent"] = data[parentindex]["indent"] + 1
 
+    for i, row in enumerate(data):
+        role = row.get("role", "option")
+        if role in ["label", "hidden"]:
+            continue
+        elif has_children and row.get("has_children"):#row["indent"] == 0:
+            data[i]["role"] = "header"
+        else:
+            data[i]["role"] = "option"
 
 #
 # CS Caching
@@ -190,13 +201,14 @@ def format_fract(meta_type, value, **kwargs):
 def format_select(meta_type, value, **kwargs):
     value = str(value)
     lang = kwargs.get("language", config.get("language", "en"))
-    full = kwargs.get("full", False)
     result = kwargs.get("result", "alias")
+    if kwargs.get("full", False): #TODO: deprecated. remove
+        result = "full"
     try:
         id_folder = kwargs["parent"].meta["id_folder"]
     except KeyError:
         id_folder = 0
-    if full:
+    if result == "full":
         result = []
         has_zero = has_selected = False
         for csval, settings in csdata_helper(meta_type, id_folder):
@@ -209,12 +221,15 @@ def format_select(meta_type, value, **kwargs):
             aliases.update(settings.get("aliases", {}))
             description = {"en" : ""}
             description.update(settings.get("description", {}))
+            role = settings.get("role", "option")
+            if role == "hidden":
+                continue
             result.append({
                     "value" : csval,
                     "alias" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
                     "selected" : value == csval,
-                    "role" : settings.get("role", "option")
+                    "role" : role
                 })
         result.sort(key=lambda x: str(x["value"]))
         if not has_selected:
@@ -222,7 +237,13 @@ def format_select(meta_type, value, **kwargs):
                 result[0]["selected"] = True
             else:
                 result.insert(0, {"value" : "", "alias" : "", "selected": True, "role" : "option"})
-        tree_indent(result)
+        if meta_type.get("mode") == "tree":
+            sort_mode = lambda x: "".join([n.zfill(3) for n in x["value"].split(".")])
+            result.sort(key=sort_mode)
+            tree_indent(result)
+        else:
+            sort_mode = lambda x: str(x["value"])
+            result.sort(key=sort_mode)
         return result
 
     if result == "alias":
@@ -242,13 +263,14 @@ def format_list(meta_type, value, **kwargs):
     value = [str(v) for v in value]
 
     lang = kwargs.get("language", config.get("language", "en"))
-    full = kwargs.get("full", False)
     result = kwargs.get("result", "alias")
+    if kwargs.get("full", False): #TODO: deprecated. remove
+        result = "full"
     try:
         id_folder = kwargs["parent"].meta["id_folder"]
     except KeyError:
         id_folder = 0
-    if full:
+    if result == "full":
         result = []
         for csval, settings in csdata_helper(meta_type, id_folder):
             settings = settings or {}
@@ -256,15 +278,23 @@ def format_list(meta_type, value, **kwargs):
             aliases.update(settings.get("aliases", {}))
             description = {"en" : ""}
             description.update(settings.get("description", {}))
+            role = settings.get("role", "option")
+            if role == "hidden":
+                continue
             result.append({
                     "value" : csval,
                     "alias" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
                     "selected" : csval in value,
-                    "role" : settings.get("role", "option")
+                    "role" : role
                 })
-        result.sort(key=lambda x: str(x["value"]))
-        tree_indent(result)
+        if meta_type.get("mode") == "tree":
+            sort_mode = lambda x: "".join([n.zfill(3) for n in x["value"].split(".")])
+            result.sort(key=sort_mode)
+            tree_indent(result)
+        else:
+            sort_mode = lambda x: str(x["value"])
+            result.sort(key=sort_mode)
         return result
 
     if result == "alias":
