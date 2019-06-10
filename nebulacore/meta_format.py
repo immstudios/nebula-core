@@ -246,11 +246,9 @@ def format_select(meta_type, value, **kwargs):
             result.sort(key=sort_mode)
         return result
 
-    if result == "alias":
-        return csa_helper(meta_type, id_folder, value, lang)
-    elif result == "description":
+    if result == "description":
         return csd_helper(meta_type, id_folder, value, lang)
-    return ""
+    return csa_helper(meta_type, id_folder, value, lang)
 
 
 
@@ -297,12 +295,11 @@ def format_list(meta_type, value, **kwargs):
             result.sort(key=sort_mode)
         return result
 
-    if result == "alias":
-        return ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
-    elif result == "description":
+    if result == "description":
         if len(value):
             return csd_helper(meta_type, id_folder, value[0], lang)
-    return ""
+        return ""
+    return ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
 
 
 def format_color(meta_type, value, **kwargs):
