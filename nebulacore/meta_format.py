@@ -229,7 +229,8 @@ def format_select(meta_type, value, **kwargs):
                     "alias" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
                     "selected" : value == csval,
-                    "role" : role
+                    "role" : role,
+                    "indent" : 0
                 })
         result.sort(key=lambda x: str(x["value"]))
         if not has_selected:
@@ -284,7 +285,8 @@ def format_list(meta_type, value, **kwargs):
                     "alias" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
                     "selected" : csval in value,
-                    "role" : role
+                    "role" : role,
+                    "indent" : 0
                 })
         if meta_type.get("mode") == "tree":
             sort_mode = lambda x: "".join([n.zfill(3) for n in x["value"].split(".")])
