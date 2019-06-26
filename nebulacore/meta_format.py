@@ -243,7 +243,10 @@ def format_select(meta_type, value, **kwargs):
             result.sort(key=sort_mode)
             tree_indent(result)
         else:
-            sort_mode = lambda x: str(x["value"])
+            if meta_type.get("order") == "alias":
+                sort_mode = lambda x: str(x["alias"])
+            else:
+                sort_mode = lambda x: str(x["value"])
             result.sort(key=sort_mode)
         return result
 
@@ -293,7 +296,10 @@ def format_list(meta_type, value, **kwargs):
             result.sort(key=sort_mode)
             tree_indent(result)
         else:
-            sort_mode = lambda x: str(x["value"])
+            if meta_type.get("order") == "alias":
+                sort_mode = lambda x: str(x["alias"])
+            else:
+                sort_mode = lambda x: str(x["value"])
             result.sort(key=sort_mode)
         return result
 
