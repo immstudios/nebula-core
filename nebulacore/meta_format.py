@@ -204,10 +204,12 @@ def format_select(meta_type, value, **kwargs):
     result = kwargs.get("result", "alias")
     if kwargs.get("full", False): #TODO: deprecated. remove
         result = "full"
+
     try:
-        id_folder = kwargs["parent"].meta["id_folder"]
+        id_folder = kwargs.get("id_folder") or kwargs["parent"].meta["id_folder"]
     except KeyError:
         id_folder = 0
+
     if result == "full":
         result = []
         has_zero = has_selected = False
@@ -269,7 +271,7 @@ def format_list(meta_type, value, **kwargs):
     if kwargs.get("full", False): #TODO: deprecated. remove
         result = "full"
     try:
-        id_folder = kwargs["parent"].meta["id_folder"]
+        id_folder = kwargs.get("id_folder") or kwargs["parent"].meta["id_folder"]
     except KeyError:
         id_folder = 0
     if result == "full":
