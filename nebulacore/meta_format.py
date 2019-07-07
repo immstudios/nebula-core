@@ -139,7 +139,12 @@ def csd_helper(meta_type, id_folder, value, lang):
 #
 
 def format_text(meta_type, value, **kwargs):
-    if "shorten" in kwargs:
+    result = kwargs.get("result", "label")
+    if result == "brief":
+        return {"value" : shorten(value, 100)}
+    if result == "full":
+        return {"value" : value}
+    if kwargs.get("shorten"): #TODO: deprecated. remove
         return shorten(value, kwargs["shorten"])
     return value
 
@@ -201,16 +206,20 @@ def format_fract(meta_type, value, **kwargs):
 def format_select(meta_type, value, **kwargs):
     value = str(value)
     lang = kwargs.get("language", config.get("language", "en"))
-    result = kwargs.get("result", "alias")
-    if kwargs.get("full", False): #TODO: deprecated. remove
-        result = "full"
+    result = kwargs.get("result", "label")
 
     try:
         id_folder = kwargs.get("id_folder") or kwargs["parent"].meta["id_folder"]
     except KeyError:
         id_folder = 0
 
-    if result == "full":
+    if result == "brief":
+        return {
+                "value" : value,
+                "label" : csa_helper(meta_type, id_folder, value, lang)
+            }
+
+    elif result == "full":
         result = []
         has_zero = has_selected = False
         for csval, settings in csdata_helper(meta_type, id_folder):
@@ -228,7 +237,8 @@ def format_select(meta_type, value, **kwargs):
                 continue
             result.append({
                     "value" : csval,
-                    "alias" : aliases.get(lang, aliases["en"]),
+                    "alias" : aliases.get(lang, aliases["en"]), #TODO: Deprecated. Remove
+                    "label" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
                     "selected" : value == csval,
                     "role" : role,
@@ -252,10 +262,11 @@ def format_select(meta_type, value, **kwargs):
             result.sort(key=sort_mode)
         return result
 
-    if result == "description":
+    elif result == "description":
         return csd_helper(meta_type, id_folder, value, lang)
-    return csa_helper(meta_type, id_folder, value, lang)
 
+    else: # Label
+        return csa_helper(meta_type, id_folder, value, lang)
 
 
 def format_list(meta_type, value, **kwargs):
@@ -264,17 +275,23 @@ def format_list(meta_type, value, **kwargs):
     elif type(value) != list:
         logging.warning("Unknown value {} for key {}".format(value, meta_type))
         value = []
-    value = [str(v) for v in value]
 
+    value = [str(v) for v in value]
     lang = kwargs.get("language", config.get("language", "en"))
-    result = kwargs.get("result", "alias")
-    if kwargs.get("full", False): #TODO: deprecated. remove
-        result = "full"
+    result = kwargs.get("result", "label")
+
     try:
         id_folder = kwargs.get("id_folder") or kwargs["parent"].meta["id_folder"]
     except KeyError:
         id_folder = 0
-    if result == "full":
+
+    if result == "brief":
+        return {
+                "value" : value,
+                "label" : ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
+        }
+
+    elif result == "full":
         result = []
         for csval, settings in csdata_helper(meta_type, id_folder):
             settings = settings or {}
@@ -287,7 +304,8 @@ def format_list(meta_type, value, **kwargs):
                 continue
             result.append({
                     "value" : csval,
-                    "alias" : aliases.get(lang, aliases["en"]),
+                    "alias" : aliases.get(lang, aliases["en"]), #TODO: Deprecated. Remove
+                    "label" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
                     "selected" : csval in value,
                     "role" : role,
@@ -305,16 +323,17 @@ def format_list(meta_type, value, **kwargs):
             result.sort(key=sort_mode)
         return result
 
-    if result == "description":
+    elif result == "description":
         if len(value):
             return csd_helper(meta_type, id_folder, value[0], lang)
         return ""
-    return ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
+
+    else: # label
+        return ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
 
 
 def format_color(meta_type, value, **kwargs):
     return "#{0:06X}".format(value)
-
 
 humanizers = {
         -1       : None,
