@@ -6,11 +6,6 @@ from nxtools import *
 from .common import *
 from .constants import *
 
-if PYTHON_VERSION < 3:
-    str_type = unicode
-else:
-    str_type = str
-
 
 def shorten(instr, nlen):
     line = instr.split("\n")[0]
@@ -139,7 +134,7 @@ def csd_helper(meta_type, id_folder, value, lang):
 #
 
 def format_text(meta_type, value, **kwargs):
-    result = kwargs.get("result", "label")
+    result = kwargs.get("result", "alias")
     if result == "brief":
         return {"value" : shorten(value, 100)}
     if result == "full":
@@ -150,26 +145,36 @@ def format_text(meta_type, value, **kwargs):
 
 
 def format_integer(meta_type, value, **kwargs):
+    result = kwargs.get("result", "alias")
     value = int(value)
+
     if not value and meta_type.settings.get("hide_null", False):
-        return ""
+        alias = ""
 
     if meta_type.key == "file/size":
-        return format_filesize(value)
+        alias = format_filesize(value)
 
-    if meta_type.key == "status":
-        return get_object_state_name(value).upper()
+    elif meta_type.key == "status":
+        alias = get_object_state_name(value).upper()
 
-    if meta_type.key == "content_type":
-        return get_content_type_name(value).upper()
+    elif meta_type.key == "content_type":
+        alias = get_content_type_name(value).upper()
 
-    if meta_type.key == "media_type":
-        return get_media_type_name(value).upper()
+    elif meta_type.key == "media_type":
+        alias = get_media_type_name(value).upper()
 
-    if meta_type.key == "id_storage":
-        return storages[value].__repr__().lstrip("storage ")
+    elif meta_type.key == "id_storage":
+        alias = storages[value].__repr__().lstrip("storage ")
 
-    return value
+    else:
+        alias = str(value)
+
+    if result in ["brief", "full"]:
+        return {
+                "value" : value,
+                "alias" : alias
+            }
+    return alias
 
 
 def format_numeric(meta_type, value, **kwargs):
@@ -178,35 +183,77 @@ def format_numeric(meta_type, value, **kwargs):
             value = float(value)
         except ValueError:
             value = 0
-    return "{:.03f}".format(value)
+    result = kwargs.get("result", "alias")
+    alias = "{:.03f}".format(value)
+    if result in ["brief", "full"]:
+        return {
+                "value" : value,
+                "alias" : alias
+            }
+    return alias
 
 
 def format_boolean(meta_type, value, **kwargs):
     value = int(value)
-    return ["no", "yes"][bool(value)]
+    result = kwargs.get("result", "alias")
+    alias = ["no", "yes"][bool(value)]
+    if result in ["brief", "full"]:
+        return {
+                "value" : value,
+                "alias" : alias
+            }
+    return alias
 
 
 def format_datetime(meta_type, value, **kwargs):
+    result = kwargs.get("result", "alias")
     time_format = meta_type.settings.get("format", False) or kwargs.get("format", "%Y-%m-%d %H:%M")
-    return format_time(value, time_format, never_placeholder=kwargs.get("never_placeholder", "never"))
+    alias = format_time(value, time_format, never_placeholder=kwargs.get("never_placeholder", "never"))
+    if result in ["brief", "full"]:
+        return {
+                "value" : value,
+                "alias" : alias
+            }
+    return alias
 
 
 def format_timecode(meta_type, value, **kwargs):
-    return s2time(value)
+    result = kwargs.get("result", "alias")
+    alias = s2time(value)
+    if result in ["brief", "full"]:
+        return {
+                "value" : value,
+                "alias" : alias
+            }
+    return alias
 
 
 def format_regions(meta_type, value, **kwargs):
-    return "{} regions".format(len(value))
+    result = kwargs.get("result", "alias")
+    alias = "{} regions".format(len(value))
+    if result in ["brief", "full"]:
+        return {
+                "value" : value,
+                "alias" : alias
+            }
+    return alias
 
 
 def format_fract(meta_type, value, **kwargs):
-    return value # TODO
+    result = kwargs.get("result", "alias")
+    alias = value #TODO
+    if result in ["brief", "full"]:
+        return {
+                "value" : value,
+                "alias" : alias
+            }
+    return alias
 
 
 def format_select(meta_type, value, **kwargs):
     value = str(value)
     lang = kwargs.get("language", config.get("language", "en"))
-    result = kwargs.get("result", "label")
+    result = kwargs.get("result", "alias")
 
     try:
         id_folder = kwargs.get("id_folder") or kwargs["parent"].meta["id_folder"]
@@ -216,7 +263,7 @@ def format_select(meta_type, value, **kwargs):
     if result == "brief":
         return {
                 "value" : value,
-                "label" : csa_helper(meta_type, id_folder, value, lang)
+                "alias" : csa_helper(meta_type, id_folder, value, lang)
             }
 
     elif result == "full":
@@ -237,8 +284,7 @@ def format_select(meta_type, value, **kwargs):
                 continue
             result.append({
                     "value" : csval,
-                    "alias" : aliases.get(lang, aliases["en"]), #TODO: Deprecated. Remove
-                    "label" : aliases.get(lang, aliases["en"]),
+                    "alias" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
                     "selected" : value == csval,
                     "role" : role,
@@ -265,7 +311,7 @@ def format_select(meta_type, value, **kwargs):
     elif result == "description":
         return csd_helper(meta_type, id_folder, value, lang)
 
-    else: # Label
+    else: # alias
         return csa_helper(meta_type, id_folder, value, lang)
 
 
@@ -278,7 +324,7 @@ def format_list(meta_type, value, **kwargs):
 
     value = [str(v) for v in value]
     lang = kwargs.get("language", config.get("language", "en"))
-    result = kwargs.get("result", "label")
+    result = kwargs.get("result", "alias")
 
     try:
         id_folder = kwargs.get("id_folder") or kwargs["parent"].meta["id_folder"]
@@ -288,7 +334,7 @@ def format_list(meta_type, value, **kwargs):
     if result == "brief":
         return {
                 "value" : value,
-                "label" : ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
+                "alias" : ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
         }
 
     elif result == "full":
@@ -304,8 +350,7 @@ def format_list(meta_type, value, **kwargs):
                 continue
             result.append({
                     "value" : csval,
-                    "alias" : aliases.get(lang, aliases["en"]), #TODO: Deprecated. Remove
-                    "label" : aliases.get(lang, aliases["en"]),
+                    "alias" : aliases.get(lang, aliases["en"]),
                     "description" : description.get(lang, description["en"]),
                     "selected" : csval in value,
                     "role" : role,
@@ -328,12 +373,21 @@ def format_list(meta_type, value, **kwargs):
             return csd_helper(meta_type, id_folder, value[0], lang)
         return ""
 
-    else: # label
+    else: # alias
         return ", ".join([csa_helper(meta_type, id_folder, v, lang) for v in value])
 
 
 def format_color(meta_type, value, **kwargs):
-    return "#{0:06X}".format(value)
+    result = kwargs.get("result", "alias")
+    alias = "#{0:06X}".format(value)
+    if result in ["brief", "full"]:
+        return {
+                "value" : value,
+                "alias" : alias
+            }
+    return alias
+
+
 
 humanizers = {
         -1       : None,
