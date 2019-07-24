@@ -275,7 +275,7 @@ class UserMixIn(object):
 
     def __getitem__(self, key):
         if key == "title":
-            return self.meta["login"]
+            return self.meta.get("login", "Anonymous")
         return super(UserMixIn, self).__getitem__(key)
 
     def set_password(self, password):
