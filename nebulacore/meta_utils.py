@@ -131,5 +131,3 @@ def clear_cs_cache():
     FMH_DATA = {}
     CSH_DATA = {}
     CSA_DATA = {}
-    print (FMH_DATA, CSH_DATA, CSA_DATA)
-
