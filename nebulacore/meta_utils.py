@@ -123,3 +123,13 @@ def csd_helper(meta_type, id_folder, value, lang):
             else:
                 CSD_DATA[key][id_folder][value] = {}
     return CSD_DATA[key][id_folder][value].get(lang) or CSD_DATA[key][id_folder][value].get("en", value)
+
+
+
+def clear_cs_cache():
+    global FMH_DATA, CSH_DATA, CSA_DATA
+    FMH_DATA = {}
+    CSH_DATA = {}
+    CSA_DATA = {}
+    print (FMH_DATA, CSH_DATA, CSA_DATA)
+
