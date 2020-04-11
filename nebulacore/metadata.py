@@ -58,17 +58,20 @@ class MetaType(object):
     def default_alias(self):
         return self.key.split("/")[-1].replace("_"," ").capitalize()
 
-    def alias(self, lang="en"):
+    def alias(self, lang=False):
+        lang = lang or config.get("language", "en")
         if lang in self.settings["aliases"]:
             return self.settings["aliases"][lang][0]
         return self.default_alias
 
-    def header(self, lang="en"):
+    def header(self, lang=False):
+        lang = lang or config.get("language", "en")
         if lang in self.settings["aliases"]:
             return self.settings["aliases"][lang][1]
         return self.default_alias
 
-    def description(self, lang="en"):
+    def description(self, lang=False):
+        lang = lang or config.get("language", "en")
         if lang in self.settings["aliases"]:
             return self.settings["aliases"][lang][2]
         return self.default_alias
