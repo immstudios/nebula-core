@@ -159,6 +159,9 @@ class Messaging():
         except Exception:
             log_traceback(handlers=False)
 
+    def __del__(self):
+        self.sock.close()
+
 messaging = Messaging()
 
 #
