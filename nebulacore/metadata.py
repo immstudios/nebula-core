@@ -1,7 +1,10 @@
+import copy
+
 from .common import *
 from .constants import *
 from .meta_validate import validators
 from .meta_format import humanizers
+from .meta_utils import filter_match
 
 __all__ = ["meta_types", "MetaType"]
 
@@ -31,6 +34,31 @@ defaults = {
         COLOR    : 0x006fd5 # nebulabroadcast.com primary
     }
 
+class ClassificationScheme(object):
+    def __init__(self, urn, filter=None):
+        csdata = config["cs"].get(urn, [])
+        if filter:
+            csdata = [r for r in csdata if filter_match(filter, r[0])]
+        self.data = dict(csdata)
+
+    def __getitem__(self, value):
+        return self.data.get(value, {})
+
+    def _lang(self, key, value, lang):
+        langs = self[value].get(key, {})
+        return langs.get(lang, langs.get("en", value))
+
+    def alias(self, value, lang):
+        return self._lang("aliases", value, lang)
+
+    def aliases(self, lang):
+        return [self.alias(value, lang) for value in self["aliases"]]
+
+    def description(self, value, lang):
+        return self._lang("aliases", value, lang)
+
+    def role(self, value):
+        return self[value].get("role", "option")
 
 class MetaType(object):
     def __init__(self, key, settings):
@@ -86,10 +114,30 @@ class MetaType(object):
             return value
         return self.humanizer(self, value, **kwargs)
 
+    @property
+    def cs(self):
+        cs = self.settings.get("cs", "urn:special-nonexistent-cs")
+        filter = self.settings.get("filter")
+        return ClassificationScheme(cs, filter)
+
+def _folder_metaset(id_folder):
+    return config["folders"].get(id_folder, {}).get("meta_set", [])
 
 class MetaTypes(object):
+    def __init__(self, id_folder=None):
+        self.id_folder = id_folder
+
+    @property
+    def meta_types(self):
+        meta_types = config["meta_types"]
+        if self.id_folder:
+            meta_types = copy.deepcopy(meta_types)
+            for key, settings in _folder_metaset(self.id_folder):
+                meta_types[key].update(settings)
+        return meta_types
+
     def __getitem__(self, key):
-        return MetaType(key, config["meta_types"].get(key, None))
+        return MetaType(key, self.meta_types.get(key, None))
 
     def __setitem__(self, key, value):
         if type(value) == MetaType:
@@ -98,10 +146,10 @@ class MetaTypes(object):
             data = value
         else:
             return
-        config["meta_types"][key] = data
+        self.meta_types[key] = data
 
     def __iter__(self):
-        return config["meta_types"].__iter__()
+        return self.meta_types.__iter__()
 
 
 meta_types = MetaTypes()
