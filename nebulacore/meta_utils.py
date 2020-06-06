@@ -50,6 +50,23 @@ def tree_indent(data):
 # CS Caching
 #
 
+class CachedObject(type):
+    _cache = None
+
+    @classmethod
+    def clear_cache(cls):
+        cls._cache = None
+
+    def __call__(cls, *args):
+        if not cls._cache:
+            cls._cache = {}
+        key = tuple(args)
+        if key not in cls._cache:
+            cls._cache[key] = super().__call__(*args)
+        return cls._cache[key]
+
+# Moved to metadata, but this stub needs to live here so older firefly
+# doesn't break.
 def clear_cs_cache():
-    # No-op for now; maybe MetaTypes will do caching of its own
-    pass
+    from . import metadata
+    metadata.clear_cs_cache()

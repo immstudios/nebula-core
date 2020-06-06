@@ -4,7 +4,7 @@ from .common import *
 from .constants import *
 from .meta_validate import validators
 from .meta_format import humanizers
-from .meta_utils import filter_match
+from .meta_utils import filter_match, CachedObject
 
 __all__ = ["meta_types", "MetaType"]
 
@@ -34,7 +34,7 @@ defaults = {
         COLOR    : 0x006fd5 # nebulabroadcast.com primary
     }
 
-class ClassificationScheme(object):
+class ClassificationScheme(metaclass=CachedObject):
     def __init__(self, urn, filter=None):
         csdata = config["cs"].get(urn, [])
         if filter:
@@ -123,18 +123,20 @@ class MetaType(object):
 def _folder_metaset(id_folder):
     return config["folders"].get(id_folder, {}).get("meta_set", [])
 
-class MetaTypes(object):
+class MetaTypes(metaclass=CachedObject):
     def __init__(self, id_folder=None):
         self.id_folder = id_folder
+        self._meta_types = None
 
     @property
     def meta_types(self):
-        meta_types = config["meta_types"]
-        if self.id_folder:
-            meta_types = copy.deepcopy(meta_types)
-            for key, settings in _folder_metaset(self.id_folder):
-                meta_types[key].update(settings)
-        return meta_types
+        if not self._meta_types:
+            self._meta_types = config["meta_types"]
+            if self.id_folder:
+                self._meta_types = copy.deepcopy(self._meta_types)
+                for key, settings in _folder_metaset(self.id_folder):
+                    self._meta_types[key].update(settings)
+        return self._meta_types
 
     def __getitem__(self, key):
         return MetaType(key, self.meta_types.get(key, None))
@@ -153,3 +155,7 @@ class MetaTypes(object):
 
 
 meta_types = MetaTypes()
+
+def clear_cs_cache():
+    MetaTypes.clear_cache()
+    ClassificationScheme.clear_cache()
