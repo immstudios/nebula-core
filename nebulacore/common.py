@@ -160,7 +160,8 @@ class Messaging():
             log_traceback(handlers=False)
 
     def __del__(self):
-        self.sock.close()
+        if self.configured:
+            self.sock.close()
 
 messaging = Messaging()
 
