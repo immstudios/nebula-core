@@ -11,7 +11,7 @@ def shorten(instr, nlen):
 
 def filter_match(f, r):
     """OR"""
-    if type(f) == list:
+    if type(f) in [list, tuple]:
         res = False
         for fl in f:
             if re.match(fl, r):

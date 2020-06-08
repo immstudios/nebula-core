@@ -36,6 +36,7 @@ defaults = {
 
 class ClassificationScheme(metaclass=CachedObject):
     def __init__(self, urn, filter=None):
+        self.urn = urn
         csdata = config["cs"].get(urn, [])
         if filter:
             csdata = [r for r in csdata if filter_match(filter, r[0])]
@@ -43,6 +44,9 @@ class ClassificationScheme(metaclass=CachedObject):
 
     def __getitem__(self, value):
         return self.data.get(value, {})
+
+    def __repr__(self):
+        return "<ClassificationScheme: {} ({} items)>".format("urn", len(self.data))
 
     def _lang(self, key, value, lang):
         langs = self[value].get(key, {})
@@ -72,6 +76,9 @@ class MetaType(object):
 
     def __setitem__(self, key, value):
         self.settings[key] = value
+
+    def __repr__(self):
+        return "<MetaType: {}>".format(self.key)
 
     def get(self, value, default=None):
         return self.settings.get(value, default)
@@ -117,8 +124,10 @@ class MetaType(object):
     @property
     def cs(self):
         cs = self.settings.get("cs", "urn:special-nonexistent-cs")
-        filter = self.settings.get("filter")
-        return ClassificationScheme(cs, filter)
+        _filter = self.settings.get("filter")
+        if type(_filter) == list:
+            _filter = tuple(_filter)
+        return ClassificationScheme(cs, _filter)
 
 def _folder_metaset(id_folder):
     return config["folders"].get(id_folder, {}).get("meta_set", [])
