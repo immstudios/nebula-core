@@ -204,7 +204,9 @@ class ItemMixIn(object):
     def __getitem__(self, key):
         key = key.lower().strip()
         if not key in self.meta:
-            if key not in ["id_asset"] and self.asset:
+            if key == "id_asset":
+                return 0
+            elif self.asset:
                 return self.asset[key]
             else:
                 return self.meta_types[key].default
