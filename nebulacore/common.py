@@ -188,7 +188,10 @@ class Storage(object):
         return self.settings[key]
 
     def __repr__(self):
-        return "storage ID:{} ({})".format(self.id, self["title"])
+        r = "storage ID:{}".format(self.id)
+        if self.get("title"):
+            r +=" ({})".format(self["title"])
+        return r
 
     def get(self, key, default=None):
         return self.settings.get(key, default)
